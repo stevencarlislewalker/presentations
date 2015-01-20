@@ -1,0 +1,814 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Global optimization of nonlinear latent variable models in community ecology</title>
+  <meta charset="utf-8">
+  <meta name="description" content="Global optimization of nonlinear latent variable models in community ecology">
+  <meta name="author" content="Steve Walker, Department of Mathematics and Statistics, McMaster University">
+  <meta name="generator" content="slidify" />
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta http-equiv="X-UA-Compatible" content="chrome=1">
+  <link rel="stylesheet" href="/Library/Frameworks/R.framework/Versions/3.1/Resources/library/slidifyLibraries/libraries/frameworks/io2012/css/default.css" media="all" >
+  <link rel="stylesheet" href="/Library/Frameworks/R.framework/Versions/3.1/Resources/library/slidifyLibraries/libraries/frameworks/io2012/css/phone.css" 
+    media="only screen and (max-device-width: 480px)" >
+  <link rel="stylesheet" href="/Library/Frameworks/R.framework/Versions/3.1/Resources/library/slidifyLibraries/libraries/frameworks/io2012/css/slidify.css" >
+  <link rel="stylesheet" href="/Library/Frameworks/R.framework/Versions/3.1/Resources/library/slidifyLibraries/libraries/highlighters/highlight.js/css/tomorrow.css" />
+  <base target="_blank"> <!-- This amazingness opens all links in a new tab. -->  
+  
+  <!-- Grab CDN jQuery, fall back to local if offline -->
+  <script src="http://ajax.aspnetcdn.com/ajax/jQuery/jquery-1.7.min.js"></script>
+  <script>window.jQuery || document.write('<script src="/Library/Frameworks/R.framework/Versions/3.1/Resources/library/slidifyLibraries/libraries/widgets/quiz/js/jquery.js"><\/script>')</script> 
+  <script data-main="/Library/Frameworks/R.framework/Versions/3.1/Resources/library/slidifyLibraries/libraries/frameworks/io2012/js/slides" 
+    src="/Library/Frameworks/R.framework/Versions/3.1/Resources/library/slidifyLibraries/libraries/frameworks/io2012/js/require-1.0.8.min.js">
+  </script>
+  
+  
+
+</head>
+<body style="opacity: 0">
+  <slides class="layout-widescreen">
+    
+    <!-- LOGO SLIDE -->
+        <slide class="title-slide segue nobackground">
+  <hgroup class="auto-fadein">
+    <h1>Global optimization of nonlinear latent variable models in community ecology</h1>
+    <h2>Canadian Mathematical Society, Winter 2014, Hamilton Ontario</h2>
+    <p>Steve Walker, Department of Mathematics and Statistics, McMaster University<br/></p>
+  </hgroup>
+  <article></article>  
+</slide>
+    
+
+    <!-- SLIDES -->
+    <slide class="" id="slide-1" style="background:;">
+  <article data-timings="">
+    <!-- ## General goal -->
+
+<!-- ### 1. Community ecologists fit sites by species matrices to environmental data, because environmental variables influence communities. -->
+
+<!-- ### 2. However, the residuals from these models are often correlated among species (or non-random cooccurrences). -->
+
+<!-- ### 3. We would like to better model these correlations and cooccurrences. -->
+
+<!-- ---&twocol -->
+
+<!-- ## How latent variables work -->
+
+<!-- *** {name: left} -->
+
+<!-- *** {name: right} -->
+
+<!-- - point 1 -->
+
+<!-- - point 2 -->
+
+<h2>A small example -- Les poissons du Doubs</h2>
+
+<p><center><img src="doubsPhoto.jpg" alt="Drawing" style="width: 730px;"/></center></p>
+
+<p>Verneaux (1973)</p>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="" id="slide-2" style="background:;">
+  <hgroup>
+    <h2>A small example -- Les poissons du Doubs</h2>
+  </hgroup>
+  <article data-timings="">
+    
+<div style='float:left;width:48%;' class='centered'>
+  <pre><code>    Environmental variables         
+</code></pre>
+
+<hr>
+
+<p>distance to the source<br>
+          altitude<br>
+           slope<br>
+   minimum average debit<br>
+             pH<br>
+  total hardness of water<br>
+         phosphates<br>
+          nitrates<br>
+      ammonia nitrogen<br>
+      dissolved oxygen<br>
+biological demand for oxygen</p>
+
+</div>
+<div style='float:right;width:48%;'>
+  <p><img src="brownTrout.jpg" alt="Drawing" style="width: 450px;"/>
+<img src="commonMinnow.jpg" alt="Drawing" style="width: 450px;"/></p>
+
+<p>Verneaux (1973)</p>
+
+</div>
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="" id="slide-3" style="background:;">
+  <hgroup>
+    <h2>Correlations among species abundances ...</h2>
+  </hgroup>
+  <article data-timings="">
+    <p><img src="assets/fig/unnamed-chunk-1-1.png" alt="plot of chunk unnamed-chunk-1"> </p>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="" id="slide-4" style="background:;">
+  <hgroup>
+    <h2>... not fully explained by environment</h2>
+  </hgroup>
+  <article data-timings="">
+    <p><img src="assets/fig/unnamed-chunk-2-1.png" alt="plot of chunk unnamed-chunk-2"> </p>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="" id="slide-5" style="background:;">
+  <hgroup>
+    <h2>Eg:  Wood-decaying fungi</h2>
+  </hgroup>
+  <article data-timings="">
+    <p><center><img src="fungiPhoto.png" alt="Drawing" style="width: 750px;"/></center></p>
+
+<p>Ovaskainen et al (2010)</p>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="" id="slide-6" style="background:;">
+  <hgroup>
+    <h2>Eg:  Wood-decaying fungi</h2>
+  </hgroup>
+  <article data-timings="">
+    
+<div style='float:left;width:48%;' class='centered'>
+  <h3>Model</h3>
+
+<ol>
+<li>Fungal species \(j\) found on spruce log \(i\) when \(z_{ij} > 0\)</li>
+<li>\(z_{ij} = \mu_{ij} + \mathrm{logit}(\Phi(e_{ij}))\)</li>
+<li>(Environment) \(\mathbf{\mu} = \mathbf{X}\mathbf{\beta}\)</li>
+<li>(Correlated residuals) \(\mathbf{e}_i \sim \mathcal{N}(\mathbf{0}, \mathbf{R})\)</li>
+</ol>
+
+<p>Where:</p>
+
+<ul>
+<li>\(\Phi\) is the cummulative density function of the normal
+distribution</li>
+<li>\(\mathbf{X}\) is a matrix of environmental variables</li>
+<li>\(\mathbf{R}\) is a correlation matrix</li>
+</ul>
+
+</div>
+<div style='float:right;width:48%;'>
+  <h3>Estimated correlation matrix, \(\mathbf{R}\)</h3>
+
+<p><img src="fungiCor.png" alt="Drawing" style="width: 420px;"/></p>
+
+<p>Ovaskainen et al (2010)</p>
+
+</div>
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="" id="slide-7" style="background:;">
+  <hgroup>
+    <h2>Two sources of these correlations</h2>
+  </hgroup>
+  <article data-timings="">
+    
+<div style='float:left;width:48%;' class='centered'>
+  <h3>1. Species interactions</h3>
+
+<ul>
+<li>Competition</li>
+<li>Predation</li>
+<li>Mutualism</li>
+<li>Apparent competition</li>
+</ul>
+
+</div>
+<div style='float:right;width:48%;'>
+  <h3>2. Unmeasured environmental variables</h3>
+
+<ul>
+<li>Even something as simple as temperature is difficult to fully
+characterize, due to heterogeneity</li>
+<li><em>Latent variables can be used to model correlations induced by
+unmeasured environmental variables</em></li>
+</ul>
+
+</div>
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="" id="slide-8" style="background:;">
+  <hgroup>
+    <h2>Using latent variables to model correlations</h2>
+  </hgroup>
+  <article data-timings="">
+    <p><img src="assets/fig/unnamed-chunk-3-1.png" alt="plot of chunk unnamed-chunk-3"> </p>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="" id="slide-9" style="background:;">
+  <hgroup>
+    <h2>Using latent variables to model correlations</h2>
+  </hgroup>
+  <article data-timings="">
+    <p><img src="assets/fig/unnamed-chunk-4-1.png" alt="plot of chunk unnamed-chunk-4"> </p>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="" id="slide-10" style="background:;">
+  <hgroup>
+    <h2>Using latent variables to model correlations</h2>
+  </hgroup>
+  <article data-timings="">
+    <p><img src="assets/fig/unnamed-chunk-5-1.png" alt="plot of chunk unnamed-chunk-5"> </p>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="" id="slide-11" style="background:;">
+  <hgroup>
+    <h2>Using latent variables to model correlations</h2>
+  </hgroup>
+  <article data-timings="">
+    <p><img src="assets/fig/unnamed-chunk-6-1.png" alt="plot of chunk unnamed-chunk-6"> </p>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="" id="slide-12" style="background:;">
+  <hgroup>
+    <h2>Using latent variables to model correlations</h2>
+  </hgroup>
+  <article data-timings="">
+    <p><img src="assets/fig/unnamed-chunk-7-1.png" alt="plot of chunk unnamed-chunk-7"> </p>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="" id="slide-13" style="background:;">
+  <hgroup>
+    <h2>Using latent variables to model correlations</h2>
+  </hgroup>
+  <article data-timings="">
+    <p><img src="assets/fig/unnamed-chunk-8-1.png" alt="plot of chunk unnamed-chunk-8"> </p>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="" id="slide-14" style="background:;">
+  <hgroup>
+    <h2>Many tools available for fitting (generalized) linear latent variable models</h2>
+  </hgroup>
+  <article data-timings="">
+    <h3>1. PCA</h3>
+
+<h3>2. Probabilistic PCA</h3>
+
+<h3>3. Generalized linear PCA</h3>
+
+<h3>4. Factor analysis</h3>
+
+<h3>5. Structural equation modelling</h3>
+
+<h3>6. Some item response models</h3>
+
+<h3>7. BayesComm</h3>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="" id="slide-15" style="background:;">
+  <hgroup>
+    <h2>But we know the relationship between environmental variables and species abundances are sometimes nonlinear</h2>
+  </hgroup>
+  <article data-timings="">
+    <p><center><img src="whittakerGraph.png" alt="Drawing" style="width: 550px;"/></center></p>
+
+<p>e.g. Whittaker (1952)</p>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="" id="slide-16" style="background:;">
+  <hgroup>
+    <h2>Nonlinear latent variable models</h2>
+  </hgroup>
+  <article data-timings="">
+    <p><img src="assets/fig/unnamed-chunk-9-1.png" alt="plot of chunk unnamed-chunk-9"> </p>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="" id="slide-17" style="background:;">
+  <hgroup>
+    <h2>Most approaches to fitting nonlinear latent variable models suffer from one of two drawbacks</h2>
+  </hgroup>
+  <article data-timings="">
+    <h3>1. Algorithmic complexity effectively prohibits finding the global optimum</h3>
+
+<ul>
+<li>e.g. Gauch et al. (1974); Yee (2004); Walker and Jackson (2011); Harris (preprint)</li>
+</ul>
+
+<h3>2. Necessary algorithmic heuristics obscure what model is actually being fitted</h3>
+
+<ul>
+<li>e.g. ter Braak (1985); Minchin (1987)</li>
+</ul>
+
+<h3>My objective:  Give an algorithm for global optimization of simple nonlinear latent variable models</h3>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="" id="slide-18" style="background:;">
+  <hgroup>
+    <h2>The model</h2>
+  </hgroup>
+  <article data-timings="">
+    <h3>\[ \underbrace{y_{ij}}_{\text{abundance of species } j \text{ at site } i} \sim \mathcal{N}(\mu_{ij}, \sigma^2) \]</h3>
+
+<h3>\[ \mu_{ij} = a_j + b_jx_i + c_jx_i^2 \]</h3>
+
+<h3>1. \(x_i \sim \mathcal{N}(0, 1)\) is the value of the latent variable at site \(i\)</h3>
+
+<h3>2. \(a_j\), \(b_j\), and \(c_j\) are parameters describing species \(j\)</h3>
+
+<h3>3. We constrain \(c_j < 0\) to obtain &#39;hump-shape&#39; curves</h3>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="" id="slide-19" style="background:;">
+  <hgroup>
+    <h2>The optimization problem</h2>
+  </hgroup>
+  <article data-timings="">
+    <h3>Minimize:  \[ \mathcal{L}(x, a, b, c) =  \sum_i\sum_j\left(y_{ij}- a_j - b_jx_i - c_jx_i^2\right)^2 + \sum_ix_i^2 \]</h3>
+
+<h3>Over all \(x_i\), \(a_j\), \(b_j\), and \(c_j\)</h3>
+
+<h3>Subject to \(c_j < 0\)</h3>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="" id="slide-20" style="background:;">
+  <hgroup>
+    <h2>This is a difficult problem -- an example slice</h2>
+  </hgroup>
+  <article data-timings="">
+    
+<div style='float:left;width:48%;' class='centered'>
+  <p><img src="assets/fig/unnamed-chunk-10-1.png" alt="plot of chunk unnamed-chunk-10"> </p>
+
+</div>
+<div style='float:right;width:48%;'>
+  <h3>1. Local minima (not convex)</h3>
+
+<h3>2. If initial parameters are bad, you could easily get stuck</h3>
+
+<h3>3. As the species parameters are updated, the local minima become</h3>
+
+<h3>even more difficult to escape</h3>
+
+<h3>4. Result:  combinatorial optimization</h3>
+
+</div>
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="" id="slide-21" style="background:;">
+  <hgroup>
+    <h2>Simulated data</h2>
+  </hgroup>
+  <article data-timings="">
+    <p><img src="assets/fig/unnamed-chunk-11-1.png" alt="plot of chunk unnamed-chunk-11"> </p>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="" id="slide-22" style="background:;">
+  <hgroup>
+    <h2>Estimated vrs true latent variables (L-BFGS-B)</h2>
+  </hgroup>
+  <article data-timings="">
+    <p><img src="assets/fig/unnamed-chunk-12-1.png" alt="plot of chunk unnamed-chunk-12"> </p>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="" id="slide-23" style="background:;">
+  <hgroup>
+    <h2>Estimated latent variables from random starting locations with L-BFGS-B</h2>
+  </hgroup>
+  <article data-timings="">
+    
+<div style='float:left;width:48%;' class='centered'>
+  <p><img src="assets/fig/unnamed-chunk-13-1.png" alt="plot of chunk unnamed-chunk-13"> </p>
+
+</div>
+<div style='float:right;width:48%;'>
+  <p><img src="assets/fig/unnamed-chunk-14-1.png" alt="plot of chunk unnamed-chunk-14"> </p>
+
+</div>
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="" id="slide-24" style="background:;">
+  <hgroup>
+    <h2>The new idea:  Don&#39;t fit the true model!</h2>
+  </hgroup>
+  <article data-timings="">
+    <h3>Fit one that&#39;s <em>more</em> complex!</h3>
+
+<h3>\[ \underbrace{y_{ij}}_{\text{abundance of species } j \text{ at site } i} \sim \mathcal{N}(\mu_{ij}, \sigma^2) \]</h3>
+
+<h3>\[ \mu_{ij} = a_j + b_jx_i + c_jz_i \]</h3>
+
+<h3>1. \(x_i \sim \mathcal{N}(0, 1)\) is the value of the latent variable at site \(i\)</h3>
+
+<h3>2. \(z_i | x_i \sim \mathcal{N}(x_i^2, \lambda^{-1})\), for regularization parameter \(\lambda\)</h3>
+
+<h3>3. \(a_j\), \(b_j\), and \(c_j\) are parameters describing species \(j\)</h3>
+
+<h3>4. We constrain \(c_j < 0\) to obtain &#39;hump-shape&#39; curves</h3>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="" id="slide-25" style="background:;">
+  <hgroup>
+    <h2>The key to the new idea:</h2>
+  </hgroup>
+  <article data-timings="">
+    <ol>
+<li>More complex --&gt; two latent variables instead of one</li>
+<li>But a prior encourages a nonlinear relationship between the latent
+variables</li>
+<li>When the prior variance goes to \(\infty\) (\(\lambda = 0\)), the
+regular linear (i.e. two-axis PCA-like) model is obtained</li>
+<li>When the prior variance is \(0\) (\(\lambda \to \infty\)), the original
+nonlinear model is obtained</li>
+<li>Therefore, we can fit the PCA-like model first (easy!), and then
+tune \(\lambda\) up until we reach the desired level of nonlinearity</li>
+</ol>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="" id="slide-26" style="background:;">
+  <hgroup>
+    <h2>The new optimization problem</h2>
+  </hgroup>
+  <article data-timings="">
+    <h3>Minimize:  \[ \mathcal{L}(x, z, a, b, c) = \sum_i\sum_j\left(y_{ij}-a_j - b_jx_i - c_jz_i\right)^2 \]</h3>
+
+<h3>\[ + \sum_ix_i^2 + \lambda\sum_i\left(z_i-x_i^2\right)^2\]</h3>
+
+<h3>Over all \(x_i\), \(z_i\), \(a_j\), \(b_j\), and \(c_j\)</h3>
+
+<h3>Subject to \(c_j < 0\)</h3>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="" id="slide-27" style="background:;">
+  <hgroup>
+    <h2>Fit to the simulations (again with L-BFGS-B)</h2>
+  </hgroup>
+  <article data-timings="">
+    <p><img src="assets/fig/unnamed-chunk-15-1.png" alt="plot of chunk unnamed-chunk-15"> </p>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="" id="slide-28" style="background:;">
+  <hgroup>
+    <h2>Simulated data</h2>
+  </hgroup>
+  <article data-timings="">
+    <p><img src="assets/fig/unnamed-chunk-16-1.png" alt="plot of chunk unnamed-chunk-16"> </p>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="" id="slide-29" style="background:;">
+  <hgroup>
+    <h2>Fit to the simulations again</h2>
+  </hgroup>
+  <article data-timings="">
+    <p><img src="assets/fig/unnamed-chunk-17-1.png" alt="plot of chunk unnamed-chunk-17"> </p>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="" id="slide-30" style="background:;">
+  <article data-timings="">
+    
+<div style='float:left;width:48%;' class='centered'>
+  <h2>Free lunch?</h2>
+
+<ol>
+<li>No ... the price is having to optimize the added parameter vector.</li>
+<li>Need to optimize over a bigger space (so a little slower
+convergence times).</li>
+<li>But this bigger space is easier to explore because it doesn&#39;t
+contain the local holes that you can fall into.</li>
+</ol>
+
+</div>
+<div style='float:right;width:48%;'>
+  <h2>Next steps</h2>
+
+<ol>
+<li>Write usable code.</li>
+<li>More extensive simulation experiments.</li>
+<li>Find out why it works!</li>
+<li>Find and prove conditions for reaching a global optimum
+
+<ul>
+<li>convexity properties won&#39;t help here because the basic model is
+<em>bilinear</em>, not <em>linear</em></li>
+<li>e.g. SVD solves a non-convex optimization problem with a fast
+globally convergent algorithms</li>
+</ul></li>
+<li>Consider more mechanistic, complex, and realistic models</li>
+</ol>
+
+</div>
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="" id="slide-31" style="background:;">
+  <hgroup>
+    <h2>Why does it work?</h2>
+  </hgroup>
+  <article data-timings="">
+    <p><center><img src="exampleNew.png" alt="Drawing" style="width: 250px;"/></center></p>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+    <slide class="backdrop"></slide>
+  </slides>
+  <div class="pagination pagination-small" id='io2012-ptoc' style="display:none;">
+    <ul>
+      <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=1 title=''>
+         1
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=2 title='A small example -- Les poissons du Doubs'>
+         2
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=3 title='Correlations among species abundances ...'>
+         3
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=4 title='... not fully explained by environment'>
+         4
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=5 title='Eg:  Wood-decaying fungi'>
+         5
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=6 title='Eg:  Wood-decaying fungi'>
+         6
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=7 title='Two sources of these correlations'>
+         7
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=8 title='Using latent variables to model correlations'>
+         8
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=9 title='Using latent variables to model correlations'>
+         9
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=10 title='Using latent variables to model correlations'>
+         10
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=11 title='Using latent variables to model correlations'>
+         11
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=12 title='Using latent variables to model correlations'>
+         12
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=13 title='Using latent variables to model correlations'>
+         13
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=14 title='Many tools available for fitting (generalized) linear latent variable models'>
+         14
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=15 title='But we know the relationship between environmental variables and species abundances are sometimes nonlinear'>
+         15
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=16 title='Nonlinear latent variable models'>
+         16
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=17 title='Most approaches to fitting nonlinear latent variable models suffer from one of two drawbacks'>
+         17
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=18 title='The model'>
+         18
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=19 title='The optimization problem'>
+         19
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=20 title='This is a difficult problem -- an example slice'>
+         20
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=21 title='Simulated data'>
+         21
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=22 title='Estimated vrs true latent variables (L-BFGS-B)'>
+         22
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=23 title='Estimated latent variables from random starting locations with L-BFGS-B'>
+         23
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=24 title='The new idea:  Don&#39;t fit the true model!'>
+         24
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=25 title='The key to the new idea:'>
+         25
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=26 title='The new optimization problem'>
+         26
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=27 title='Fit to the simulations (again with L-BFGS-B)'>
+         27
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=28 title='Simulated data'>
+         28
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=29 title='Fit to the simulations again'>
+         29
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=30 title=''>
+         30
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=31 title='Why does it work?'>
+         31
+      </a>
+    </li>
+  </ul>
+  </div>  <!--[if IE]>
+    <script 
+      src="http://ajax.googleapis.com/ajax/libs/chrome-frame/1/CFInstall.min.js">  
+    </script>
+    <script>CFInstall.check({mode: 'overlay'});</script>
+  <![endif]-->
+</body>
+  <!-- Load Javascripts for Widgets -->
+  
+  <!-- MathJax: Fall back to local if CDN offline but local image fonts are not supported (saves >100MB) -->
+  <script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      tex2jax: {
+        inlineMath: [['$','$'], ['\\(','\\)']],
+        processEscapes: true
+      }
+    });
+  </script>
+  <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/2.0-latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+  <!-- <script src="https://c328740.ssl.cf1.rackcdn.com/mathjax/2.0-latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+  </script> -->
+  <script>window.MathJax || document.write('<script type="text/x-mathjax-config">MathJax.Hub.Config({"HTML-CSS":{imageFont:null}});<\/script><script src="/Library/Frameworks/R.framework/Versions/3.1/Resources/library/slidifyLibraries/libraries/widgets/mathjax/MathJax.js?config=TeX-AMS-MML_HTMLorMML"><\/script>')
+</script>
+<!-- LOAD HIGHLIGHTER JS FILES -->
+  <script src="/Library/Frameworks/R.framework/Versions/3.1/Resources/library/slidifyLibraries/libraries/highlighters/highlight.js/highlight.pack.js"></script>
+  <script>hljs.initHighlightingOnLoad();</script>
+  <!-- DONE LOADING HIGHLIGHTER JS FILES -->
+   
+  </html>
